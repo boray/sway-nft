@@ -37,9 +37,14 @@ struct Sent {
 abi Token {
 
     #[storage(read, write)]fn mint(receiver: Address, tokenID: u64, tokenURI: Address);
-    #[storage(read, write)]fn send(receiver: Address, tokenID: u64);
+    #[storage(read, write)]fn burn(tokenID: u64);
+    #[storage(read, write)]fn transfer(receiver: Address, tokenID: u64);
     #[storage(read, write)]fn setTokenURI( tokenID: u64);
-    #[storage(read, write)]fn getTokenURI( tokenID: u64);
+    #[storage(read)]fn getTokenURI(tokenID: u64);
+    #[storage(read)]fn ownerOf(tokenID: u64);
+    #[storage(read)]fn balanceOf(address: Address);
+
+
 
 }
 
@@ -93,12 +98,29 @@ impl Token for Contract {
         storage.tokenuris.insert(tokenID, tokenURI);
     }
 
+    #[storage(read, write)]fn burn(tokenID: u64) {
+        assert(storage.owners.get(tokenID) = msg_sender());
+        storage.owners.insert(tokenID,0x0); // not sure with zero
+        storage.balances.insert(storage.balances.get(msg_sender()) - 1);
+        storage.tokenuris.insert(tokenID,0x0); // not sure with zero 
+
+
+    }
+
     #[storage(read, write)]fn setTokenURI( tokenID: u64) {
         assert(storage.owners.get(tokenID) = msg_sender());
         storage.owners.insert(Address, tokenID);
     }
 
-    #[storage(read, write)]fn send(receiver: Address, tokenID: u64) {
+    #[storage(read)]fn ownerOf(tokenId: u64) {
+        storage.owners.get(tokenID)
+    }
+
+    #[storage(read)]fn balanceOf(address: Address) {
+        storage.balances.get(address)
+    }
+
+    #[storage(read, write)]fn transfer(receiver: Address, tokenID: u64) {
         // Note: The return type of `msg_sender()` can be inferred by the
         // compiler. It is shown here for explicitness.
         let sender: Result<Identity, AuthError> = msg_sender();
