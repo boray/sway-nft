@@ -1,4 +1,3 @@
-// ANCHOR: body
 contract;
 
 use std::{
@@ -78,6 +77,7 @@ storage {
 
 /// Contract implements the `Token` ABI.
 impl Token for Contract {
+
     #[storage(read, write)]fn mint(receiver: Address, tokenID: u64, tokenURI: Address) {
         // Note: The return type of `msg_sender()` can be inferred by the
         // compiler. It is shown here for explicitness.
@@ -103,8 +103,6 @@ impl Token for Contract {
         storage.owners.insert(tokenID,0x0); // not sure with zero
         storage.balances.insert(storage.balances.get(msg_sender()) - 1);
         storage.tokenuris.insert(tokenID,0x0); // not sure with zero 
-
-
     }
 
     #[storage(read, write)]fn transfer(receiver: Address, tokenID: u64) {
@@ -121,14 +119,10 @@ impl Token for Contract {
             },
         };
 
-  
         assert(storage.owners.get(tokenID) = sender);
-
+        
         storage.balances.insert(sender, sender_amount - 1);
-
         storage.owners.insert(tokenID,receiver);
-
-        // Increase the balance od receiver
         storage.balances.insert(receiver, storage.balances.get(receiver) + 1);
 
         log(Sent {
@@ -153,6 +147,5 @@ impl Token for Contract {
         storage.balances.get(address)
     }
 
-
 }
-// ANCHOR_END: body
+
