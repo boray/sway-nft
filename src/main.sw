@@ -22,19 +22,27 @@ use std::{
 //  be decoded on the SDK side.
 
 /// Emitted when a token is sent.
-struct Sent {
-    from: Address,
+
+struct Mint {
     to: Address,
     tokenID: u64,
 }
 
+struct Burn {
+    tokenID: u64,
+}
+
+struct Transfer {
+    from: Address,
+    to: Address,
+    tokenID: u64,
+}
 ////////////////////////////////////////
 // ABI method declarations
 ////////////////////////////////////////
 
 /// ABI for a subcurrency.
 abi Token {
-
     #[storage(read, write)]fn mint(receiver: Address, tokenID: u64, tokenURI: Address);
     #[storage(read, write)]fn burn(tokenID: u64);
     #[storage(read, write)]fn transfer(receiver: Address, tokenID: u64);
@@ -42,9 +50,6 @@ abi Token {
     #[storage(read)]fn getTokenURI(tokenID: u64);
     #[storage(read)]fn ownerOf(tokenID: u64);
     #[storage(read)]fn balanceOf(address: Address);
-
-
-
 }
 
 ////////////////////////////////////////
@@ -78,7 +83,7 @@ storage {
 /// Contract implements the `Token` ABI.
 impl Token for Contract {
 
-    #[storage(read, write)]fn mint(receiver: Address, tokenID: u64, tokenURI: Address) {
+    #[storage(read, write)]fn mint(to: Address, tokenID: u64, tokenURI: Address) {
         // Note: The return type of `msg_sender()` can be inferred by the
         // compiler. It is shown here for explicitness.
         let sender: Result<Identity, AuthError> = msg_sender();
@@ -93,9 +98,13 @@ impl Token for Contract {
         };
 
         // Increase the balance of receiver
-        storage.balances.insert(receiver, storage.balances.get(receiver) + 1);
+        storage.balances.insert(to, storage.balances.get(to) + 1);
         storage.owners.insert(Address, tokenID);
         storage.tokenuris.insert(tokenID, tokenURI);
+
+        log(Mint {
+            to: to, tokenID: tokenID
+        });
     }
 
     #[storage(read, write)]fn burn(tokenID: u64) {
@@ -103,6 +112,10 @@ impl Token for Contract {
         storage.owners.insert(tokenID,0x0); // not sure with zero
         storage.balances.insert(storage.balances.get(msg_sender()) - 1);
         storage.tokenuris.insert(tokenID,0x0); // not sure with zero 
+
+        log(Burn {
+            tokenID: tokenID
+        });
     }
 
     #[storage(read, write)]fn transfer(receiver: Address, tokenID: u64) {
@@ -125,7 +138,7 @@ impl Token for Contract {
         storage.owners.insert(tokenID,receiver);
         storage.balances.insert(receiver, storage.balances.get(receiver) + 1);
 
-        log(Sent {
+        log(Transfer {
             from: sender, to: receiver, tokenID: tokenID
         });
     }
