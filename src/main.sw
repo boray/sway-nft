@@ -26,7 +26,7 @@ use std::{
 struct Sent {
     from: Address,
     to: Address,
-    tokenId: u64,
+    tokenID: u64,
 }
 
 ////////////////////////////////////////
@@ -35,16 +35,11 @@ struct Sent {
 
 /// ABI for a subcurrency.
 abi Token {
-    // Mint new tokens and send to an address.
-    // Can only be called by the contract creator.
+
     #[storage(read, write)]fn mint(receiver: Address, tokenID: u64, tokenURI: Address);
-
-    // Sends an amount of an existing token.
-    // Can be called from any address.
     #[storage(read, write)]fn send(receiver: Address, tokenID: u64);
-
-    #[storage(read, write)]fn setTokenURI( tokenId: u64);
-    #[storage(read, write)]fn getTokenURI( tokenId: u64);
+    #[storage(read, write)]fn setTokenURI( tokenID: u64);
+    #[storage(read, write)]fn getTokenURI( tokenID: u64);
 
 }
 
@@ -98,10 +93,9 @@ impl Token for Contract {
         storage.tokenuris.insert(tokenID, tokenURI);
     }
 
-    #[storage(read, write)]fn setTokenURI( tokenId: u64) {
-
+    #[storage(read, write)]fn setTokenURI( tokenID: u64) {
         assert(storage.owners.get(tokenID) = msg_sender());
-
+        storage.owners.insert(Address, tokenID);
     }
 
     #[storage(read, write)]fn send(receiver: Address, tokenID: u64) {
@@ -129,7 +123,7 @@ impl Token for Contract {
         storage.balances.insert(receiver, storage.balances.get(receiver) + 1);
 
         log(Sent {
-            from: sender, to: receiver, tokenId: tokenID
+            from: sender, to: receiver, tokenID: tokenID
         });
     }
 }
