@@ -1,0 +1,9 @@
+[project]
+authors = ["boray"]
+entry = "main.sw"
+license = "Apache-2.0"
+name = "sway-nft"
+
+[dependencies]
+std = { path = "../sway/sway-lib-std/"}
+core = { path = "../sway/sway-lib-core/"}

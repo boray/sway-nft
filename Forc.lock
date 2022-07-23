@@ -1,0 +1,17 @@
+[[package]]
+name = 'core'
+source = 'path+from-root-13BA17B0E17A42DD'
+dependencies = []
+
+[[package]]
+name = 'std'
+source = 'path+from-root-13BA17B0E17A42DD'
+dependencies = ['core']
+
+[[package]]
+name = 'sway-nft'
+source = 'root'
+dependencies = [
+    'core',
+    'std',
+]
