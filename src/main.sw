@@ -107,19 +107,6 @@ impl Token for Contract {
 
     }
 
-    #[storage(read, write)]fn setTokenURI( tokenID: u64) {
-        assert(storage.owners.get(tokenID) = msg_sender());
-        storage.owners.insert(Address, tokenID);
-    }
-
-    #[storage(read)]fn ownerOf(tokenId: u64) {
-        storage.owners.get(tokenID)
-    }
-
-    #[storage(read)]fn balanceOf(address: Address) {
-        storage.balances.get(address)
-    }
-
     #[storage(read, write)]fn transfer(receiver: Address, tokenID: u64) {
         // Note: The return type of `msg_sender()` can be inferred by the
         // compiler. It is shown here for explicitness.
@@ -148,5 +135,24 @@ impl Token for Contract {
             from: sender, to: receiver, tokenID: tokenID
         });
     }
+
+    #[storage(read, write)]fn setTokenURI( tokenID: u64) {
+        assert(storage.owners.get(tokenID) = msg_sender());
+        storage.owners.insert(Address, tokenID);
+    }
+
+    #[storage(read)]fn getTokenURI(tokenID: u64) {
+        storage.tokenuris.get(tokenID);
+    }
+
+    #[storage(read)]fn ownerOf(tokenId: u64) {
+        storage.owners.get(tokenID)
+    }
+
+    #[storage(read)]fn balanceOf(address: Address) {
+        storage.balances.get(address)
+    }
+
+
 }
 // ANCHOR_END: body
